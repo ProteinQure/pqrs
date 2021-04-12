@@ -76,7 +76,11 @@ def update():
     pqrs_roles = backend.discover_roles()
 
     roles_to_run = {
-        collection: [r.name for r in roles if r.name in config.roles.get(collection, [])]
+        collection: [
+            r.name
+            for r in roles
+            if r.name in config.roles.get(collection, []) and r.outdated
+        ]
         for collection, roles in pqrs_roles.items()
     }
 
