@@ -44,6 +44,27 @@ def subscribe(url: str):
     config.roles[f"{namespace}.{collection}"] = None
 
 
+@dataclasses.dataclass
+class Role:
+    name: str
+    description: list[str]
+
+    @classmethod
+    def from_path(cls, path):
+        name = path.stem
+
+        metadata = {}
+        metadata_path = path / 'meta/main.yml'
+
+        if metadata_path.exists():
+            with open(path / 'meta/main.yml') as f:
+                metadata = yaml.load(f)
+
+        description = metadata.get('pqrs_info', {}).get('description', '')
+
+        return cls(name, [line.strip() for line in description.splitlines()])
+
+
 @app.command()
 def configure():
     """
