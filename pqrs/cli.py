@@ -36,7 +36,7 @@ def subscribe(url: str):
     """
 
     galaxy = local["ansible-galaxy"]
-    result = galaxy["collection", "install", url].run()
+    result = galaxy["collection", "install", "--force", url].run()
     namespace, collection = result[1].splitlines()[-1].split()[0].split('.')
 
     config = Config.objects.get_or_create()
