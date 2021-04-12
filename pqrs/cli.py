@@ -94,7 +94,7 @@ def configure():
     config = Config.objects.get_or_create()
 
     for collection, roles in pqrs_roles.items():
-        config.roles[collection] = run_selector(roles)
+        config.roles[collection] = [r.name for r in run_selector(roles)]
 
 
 def run():
