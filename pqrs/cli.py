@@ -63,6 +63,30 @@ def configure():
 
 
 @app.command()
+def update():
+    """
+    Fetch newest configuration info and update the setup.
+    """
+
+    galaxy = local["ansible-galaxy"]
+    config = Config.objects.get_or_create()
+
+    # Fetch the newest updates from channels
+    for url in config.channels.values():
+        result = galaxy["collection", "install", "--force", url].run()
+
+    # Discover roles
+    pqrs_roles = backend.discover_roles()
+
+    roles_to_run = {
+        collection: [r.name for r in roles if r.name in config.roles.get(collection, [])]
+        for collection, roles in pqrs_roles.items()
+    }
+
+    backend.execute_roles(roles_to_run)
+
+
+@app.command()
 def execute():
     """
     Select which roles you want to install.
@@ -77,7 +101,6 @@ def execute():
     }
 
     backend.execute_roles(roles_to_run)
-
 
 
 def run():
