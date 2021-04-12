@@ -42,6 +42,7 @@ class RoleSelectorForm(npyscreen.Form):
             checkbox = self.add(
                 DescribedCheckBox,
                 name=role.name,
+                value=role.selected,
                 max_width=40,
                 parent_form=self,
                 description_text=role.description

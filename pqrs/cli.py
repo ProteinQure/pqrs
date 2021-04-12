@@ -55,6 +55,7 @@ def subscribe(url: str):
 class Role:
     name: str
     description: list[str]
+    selected: bool = False
 
     @classmethod
     def from_path(cls, path):
@@ -93,6 +94,17 @@ def configure():
 
     config = Config.objects.get_or_create()
 
+    # Toggle on all active roles
+    active_roles = [
+        role
+        for collection, roles in pqrs_roles.items()
+        for role in roles
+        if role.name in config.roles.get(collection, [])
+    ]
+    for role in active_roles:
+        role.selected = True
+
+    # Ask user to (re)configure the roles
     for collection, roles in pqrs_roles.items():
         config.roles[collection] = [r.name for r in run_selector(roles)]
 
