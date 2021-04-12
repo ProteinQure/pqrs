@@ -3,9 +3,12 @@ Implements backend-related functionality.
 """
 
 import dataclasses
+import itertools
 import json
 
+import temppathlib
 import yaml
+from plumbum import local, FG, BG
 
 from pqrs import paths
 
@@ -49,3 +52,26 @@ def discover_roles():
         collection: [Role.from_path(p) for p in path.glob('roles/*') if (p / 'meta/pqrs.yml').exists()]
         for collection, path in pqrs_collections.items()
     }
+
+
+def execute_roles(roles_to_run):
+    """
+    Executes the given roles using ansible-runner.
+    """
+
+    role_paths = [
+        str(paths.COLLECTIONS / f"{collection.replace('.', '/')}/roles")
+        for collection in roles_to_run
+    ]
+    role_path_args = itertools.chain(*[("--roles-path", p) for p in role_paths])
+    runner = local["ansible-runner"]
+
+    with temppathlib.TemporaryDirectory() as tmpdir:
+        with open(tmpdir.path / "play.yml", "w") as f:
+            f.write('\n'.join([
+                '- hosts: localhost',
+                '  roles:',
+                *(f'    - {role}' for role in itertools.chain(*roles_to_run.values()))
+            ]))
+        args = ("--project-dir", str(tmpdir.path), "--play", "play.yml", "run", str(tmpdir.path))
+        runner[(*role_path_args, *args)] & FG

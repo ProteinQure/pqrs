@@ -1,9 +1,4 @@
-import itertools
-
-import plumbum
-import temppathlib
 import typer
-
 from plumbum.cmd import git
 from plumbum import local, FG, BG
 
@@ -81,22 +76,8 @@ def execute():
         for collection, roles in pqrs_roles.items()
     }
 
-    role_paths = [
-        str(paths.COLLECTIONS / f"{collection.replace('.', '/')}/roles")
-        for collection in roles_to_run
-    ]
-    role_path_args = itertools.chain(*[("--roles-path", p) for p in role_paths])
-    runner = local["ansible-runner"]
+    backend.execute_roles(roles_to_run)
 
-    with temppathlib.TemporaryDirectory() as tmpdir:
-        with open(tmpdir.path / "play.yml", "w") as f:
-            f.write('\n'.join([
-                '- hosts: localhost',
-                '  roles:',
-                *(f'    - {role}' for role in itertools.chain(*roles_to_run.values()))
-            ]))
-        args = ("--project-dir", str(tmpdir.path), "--play", "play.yml", "run", str(tmpdir.path))
-        runner[(*role_path_args, *args)] & FG
 
 
 def run():
