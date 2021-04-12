@@ -38,13 +38,13 @@ class RoleSelectorForm(npyscreen.Form):
         self.parentApp.setNextForm(None)
 
     def create(self):
-        for role, description in self.data.items():
+        for role in self.data:
             checkbox = self.add(
                 DescribedCheckBox,
-                name=role,
+                name=role.name,
                 max_width=40,
                 parent_form=self,
-                description_text=description
+                description_text=role.description
             )
             self.checkboxes.append(checkbox)
 

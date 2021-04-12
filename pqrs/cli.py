@@ -1,5 +1,11 @@
-import typer
+import dataclasses
+import pathlib
+import json
+
 import plumbum
+import typer
+import yaml
+
 from datafiles import datafile
 from plumbum.cmd import git
 from plumbum import local, FG, BG
@@ -8,6 +14,7 @@ from pqrs.selector import run_selector
 
 
 PQRS_LOCATION = local.env.home / '.pqrss'
+COLLECTIONS_LOCATION = pathlib.Path('~/.ansible/collections/ansible_collections/').expanduser()
 
 app = typer.Typer(add_completion=False)
 
@@ -71,14 +78,23 @@ def configure():
     Select which roles you want to install.
     """
 
-    data = {
-        'basic': ["All the usual stuff"],
-        'cli-vim': ["Vim goodies"],
-        'cli-bash': ["You should probably install this", "also configures history"],
+    # Discover the PQRS-enabled collections
+    pqrs_collections = {
+        f"{path.parent.parent.stem}.{path.parent.stem}": path.parent
+        for path in COLLECTIONS_LOCATION.glob('*/*/MANIFEST.json')
+        if 'pqrs' in json.load(open(path)).get('collection_info', {}).get('tags', [])
+    }
+
+    # Locate the roles for each collection
+    pqrs_roles = {
+        collection: [Role.from_path(p) for p in path.glob('roles/*')]
+        for collection, path in pqrs_collections.items()
     }
 
     config = Config.objects.get_or_create()
-    config.roles["pq.config"] = run_selector(data)
+
+    for collection, roles in pqrs_roles.items():
+        config.roles[collection] = run_selector(roles)
 
 
 def run():
