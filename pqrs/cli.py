@@ -6,23 +6,16 @@ import plumbum
 import typer
 import yaml
 
-from datafiles import datafile
 from plumbum.cmd import git
 from plumbum import local, FG, BG
 
 from pqrs.selector import run_selector
+from pqrs.config import Config, PQRS_LOCATION
 
 
-PQRS_LOCATION = local.env.home / '.pqrss'
 COLLECTIONS_LOCATION = pathlib.Path('~/.ansible/collections/ansible_collections/').expanduser()
 
 app = typer.Typer(add_completion=False)
-
-@datafile(str(PQRS_LOCATION / "pqrs.yml"))
-class Config:
-    channels: dict[str, str] = None
-    roles: dict[str, list[str]] = None
-
 
 @app.command()
 def init():
