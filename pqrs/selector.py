@@ -84,12 +84,3 @@ def run_selector(data):
         role for role, checkbox in zip(data, app._Forms["MAIN"].checkboxes)
         if checkbox.value is True
     ]
-
-
-if __name__ == '__main__':
-    data = {
-        'basic': ["All the usual stuff"],
-        'cli-vim': ["Vim goodies"],
-        'cli-bash': ["You should probably install this", "also configures history"],
-    }
-    print(run_selector(data))

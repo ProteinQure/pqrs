@@ -4,6 +4,8 @@ from datafiles import datafile
 from plumbum.cmd import git
 from plumbum import local, FG, BG
 
+from pqrs.selector import run_selector
+
 
 PQRS_LOCATION = local.env.home / '.pqrss'
 
@@ -40,6 +42,23 @@ def subscribe(url: str):
     config = Config.objects.get_or_create()
     config.channels[f"{namespace}.{collection}"] = url
     config.roles[f"{namespace}.{collection}"] = None
+
+
+@app.command()
+def configure():
+    """
+    Select which roles you want to install.
+    """
+
+    data = {
+        'basic': ["All the usual stuff"],
+        'cli-vim': ["Vim goodies"],
+        'cli-bash': ["You should probably install this", "also configures history"],
+    }
+
+    config = Config.objects.get_or_create()
+    config.roles["pq.config"] = run_selector(data)
+
 
 def run():
     app()
