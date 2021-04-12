@@ -16,11 +16,12 @@ from pqrs import paths
 @dataclasses.dataclass
 class Role:
     name: str
+    collection: str
     description: list[str]
     selected: bool = False
 
     @classmethod
-    def from_path(cls, path):
+    def from_path(cls, path, collection):
         name = path.stem
 
         metadata = {}
@@ -49,7 +50,11 @@ def discover_roles():
 
     # Locate the roles for each collection
     return {
-        collection: [Role.from_path(p) for p in path.glob('roles/*') if (p / 'meta/pqrs.yml').exists()]
+        collection: [
+            Role.from_path(p, collection)
+            for p in path.glob('roles/*')
+            if (p / 'meta/pqrs.yml').exists()
+        ]
         for collection, path in pqrs_collections.items()
     }
 
