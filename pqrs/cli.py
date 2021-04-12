@@ -1,14 +1,10 @@
-import dataclasses
-import pathlib
-import json
-
 import plumbum
 import typer
-import yaml
 
 from plumbum.cmd import git
 from plumbum import local, FG, BG
 
+from pqrs import backend
 from pqrs import paths
 from pqrs import tui
 from pqrs.config import Config
@@ -43,47 +39,13 @@ def subscribe(url: str):
     config.roles[f"{namespace}.{collection}"] = None
 
 
-@dataclasses.dataclass
-class Role:
-    name: str
-    description: list[str]
-    selected: bool = False
-
-    @classmethod
-    def from_path(cls, path):
-        name = path.stem
-
-        metadata = {}
-        metadata_path = path / 'meta/pqrs.yml'
-
-        if metadata_path.exists():
-            with open(path / 'meta/pqrs.yml') as f:
-                metadata = yaml.load(f)
-
-        description = metadata.get('description', '')
-
-        return cls(name, [line.strip() for line in description.splitlines()])
-
-
 @app.command()
 def configure():
     """
     Select which roles you want to install.
     """
 
-    # Discover the PQRS-enabled collections
-    pqrs_collections = {
-        f"{path.parent.parent.stem}.{path.parent.stem}": path.parent
-        for path in paths.COLLECTIONS.glob('*/*/MANIFEST.json')
-        if len(list(path.parent.glob('roles/*/meta/pqrs.yml'))) > 0
-    }
-
-    # Locate the roles for each collection
-    pqrs_roles = {
-        collection: [Role.from_path(p) for p in path.glob('roles/*') if (p / 'meta/pqrs.yml').exists()]
-        for collection, path in pqrs_collections.items()
-    }
-
+    pqrs_roles = backend.discover_roles()
     config = Config.objects.get_or_create()
 
     # Toggle on all active roles
