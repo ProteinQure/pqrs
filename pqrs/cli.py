@@ -9,11 +9,10 @@ import yaml
 from plumbum.cmd import git
 from plumbum import local, FG, BG
 
+from pqrs import paths
 from pqrs.selector import run_selector
-from pqrs.config import Config, PQRS_LOCATION
+from pqrs.config import Config
 
-
-COLLECTIONS_LOCATION = pathlib.Path('~/.ansible/collections/ansible_collections/').expanduser()
 
 app = typer.Typer(add_completion=False)
 
@@ -23,9 +22,9 @@ def init():
     Ensures the PQRS is ready to be used.
     """
 
-    PQRS_LOCATION.mkdir(exist_ok=True)
+    paths.PQRS_LOCATION.mkdir(exist_ok=True)
 
-    with local.cwd(PQRS_LOCATION):
+    with local.cwd(paths.PQRS_LOCATION):
         git["init"] & FG
 
 
@@ -75,7 +74,7 @@ def configure():
     # Discover the PQRS-enabled collections
     pqrs_collections = {
         f"{path.parent.parent.stem}.{path.parent.stem}": path.parent
-        for path in COLLECTIONS_LOCATION.glob('*/*/MANIFEST.json')
+        for path in paths.COLLECTIONS.glob('*/*/MANIFEST.json')
         if len(list(path.parent.glob('roles/*/meta/pqrs.yml'))) > 0
     }
 
