@@ -11,3 +11,6 @@ from pqrs import paths
 class Config:
     channels: dict[str, str] = None
     roles: dict[str, list[str]] = None
+
+
+config = Config.objects.get_or_create()

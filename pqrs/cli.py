@@ -5,7 +5,7 @@ from plumbum import local, FG, BG
 from pqrs import backend
 from pqrs import paths
 from pqrs import tui
-from pqrs.config import Config
+from pqrs.config import config
 
 
 app = typer.Typer(add_completion=False)
@@ -32,7 +32,6 @@ def subscribe(url: str):
     result = galaxy["collection", "install", "--force", url].run()
     namespace, collection = result[1].splitlines()[-1].split()[0].split('.')
 
-    config = Config.objects.get_or_create()
     config.channels[f"{namespace}.{collection}"] = url
     config.roles[f"{namespace}.{collection}"] = None
 
@@ -45,7 +44,6 @@ def configure():
     """
 
     pqrs_roles = backend.discover_roles()
-    config = Config.objects.get_or_create()
 
     # Toggle on all active roles
     active_roles = [
@@ -69,7 +67,6 @@ def update():
     """
 
     galaxy = local["ansible-galaxy"]
-    config = Config.objects.get_or_create()
 
     # Fetch the newest updates from channels
     for url in config.channels.values():
