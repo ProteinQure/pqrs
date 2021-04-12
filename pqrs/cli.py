@@ -62,13 +62,13 @@ class Role:
         name = path.stem
 
         metadata = {}
-        metadata_path = path / 'meta/main.yml'
+        metadata_path = path / 'meta/pqrs.yml'
 
         if metadata_path.exists():
-            with open(path / 'meta/main.yml') as f:
+            with open(path / 'meta/pqrs.yml') as f:
                 metadata = yaml.load(f)
 
-        description = metadata.get('pqrs_info', {}).get('description', '')
+        description = metadata.get('description', '')
 
         return cls(name, [line.strip() for line in description.splitlines()])
 
@@ -83,12 +83,12 @@ def configure():
     pqrs_collections = {
         f"{path.parent.parent.stem}.{path.parent.stem}": path.parent
         for path in COLLECTIONS_LOCATION.glob('*/*/MANIFEST.json')
-        if 'pqrs' in json.load(open(path)).get('collection_info', {}).get('tags', [])
+        if len(list(path.parent.glob('roles/*/meta/pqrs.yml'))) > 0
     }
 
     # Locate the roles for each collection
     pqrs_roles = {
-        collection: [Role.from_path(p) for p in path.glob('roles/*')]
+        collection: [Role.from_path(p) for p in path.glob('roles/*') if (p / 'meta/pqrs.yml').exists()]
         for collection, path in pqrs_collections.items()
     }
 
@@ -99,7 +99,7 @@ def configure():
         role
         for collection, roles in pqrs_roles.items()
         for role in roles
-        if role.name in config.roles.get(collection, [])
+        if role.name in (config.roles.get(collection) or [])
     ]
     for role in active_roles:
         role.selected = True
