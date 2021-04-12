@@ -74,7 +74,7 @@ class RoleSelector(npyscreen.NPSAppManaged):
         self.addForm('MAIN', RoleSelectorForm, name='Select roles', data=self.data)
 
 
-def run_selector(data):
+def select_roles(data):
     """
     Returns user-selected roles.
     """

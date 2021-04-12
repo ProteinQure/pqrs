@@ -10,7 +10,7 @@ from plumbum.cmd import git
 from plumbum import local, FG, BG
 
 from pqrs import paths
-from pqrs.selector import run_selector
+from pqrs import tui
 from pqrs.config import Config
 
 
@@ -98,7 +98,7 @@ def configure():
 
     # Ask user to (re)configure the roles
     for collection, roles in pqrs_roles.items():
-        config.roles[collection] = [r.name for r in run_selector(roles)]
+        config.roles[collection] = [r.name for r in tui.select_roles(roles)]
 
 
 def run():
