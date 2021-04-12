@@ -5,12 +5,15 @@ Implements backend-related functionality.
 import dataclasses
 import itertools
 import json
+from typing import Optional
 
 import temppathlib
 import yaml
 from plumbum import local, FG, BG
+from semantic_version import Version
 
 from pqrs import paths
+from pqrs.config import config
 
 
 @dataclasses.dataclass
@@ -18,7 +21,8 @@ class Role:
     name: str
     collection: str
     description: list[str]
-    selected: bool = False
+    current_version: Version
+    installed_version: Optional[Version] = None
 
     @classmethod
     def from_path(cls, path, collection):
@@ -32,8 +36,19 @@ class Role:
                 metadata = yaml.load(f)
 
         description = metadata.get('description', '')
+        available = Version(metadata.get('version', '0.0.0'))
+        installed = config.roles.get(collection, {}).get(name)
 
-        return cls(name, [line.strip() for line in description.splitlines()])
+        return cls(
+            name,
+            collection,
+            [line.strip() for line in description.splitlines()],
+            available,
+            Version(installed) if installed else None
+        )
+
+    def is_outdated(self):
+        return self.installed_version is None or self.available_version > self.installed_version
 
 
 def discover_roles():
