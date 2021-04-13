@@ -10,10 +10,10 @@ from typing import Optional
 import temppathlib
 import yaml
 from plumbum import local, FG, BG
-from semantic_version import Version
 
 from pqrs import paths
 from pqrs.config import config
+from pqrs.version import Version
 
 
 @dataclasses.dataclass
