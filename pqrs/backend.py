@@ -34,7 +34,7 @@ class Role:
 
         if metadata_path.exists():
             with open(path / 'meta/pqrs.yml') as f:
-                metadata = yaml.load(f)
+                metadata = yaml.safe_load(f)
 
         description = metadata.get('description', '')
         available = Version(metadata.get('version', '0.0.0'))
