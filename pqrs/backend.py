@@ -95,3 +95,6 @@ def execute_roles(roles_to_run):
             ]))
         args = ("--project-dir", str(tmpdir.path), "--play", "play.yml", "run", str(tmpdir.path))
         runner[(*role_path_args, *args)] & FG
+
+    for collection, roles in roles_to_run.items():
+        config.roles[collection] = {r.name: r.current_version for r in roles}
