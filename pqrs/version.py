@@ -1,11 +1,11 @@
-import semantic_version
+from semantic_version import Version
+from ruamel import yaml
 
 
-class Version(semantic_version.Version):
-    """
-    Extension of the semantic_version.Version that can be processed by
-    rumael.yaml.
-    """
+def VersionRepresenter(dumper, data):
+    return dumper.represent_scalar('tag:yaml.org,2002:str', str(data))
 
-    def to_yaml(self):
-        return str(self)
+yaml.representer.RoundTripRepresenter.add_representer(
+    Version, VersionRepresenter
+)
+
