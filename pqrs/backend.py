@@ -21,9 +21,9 @@ class Role:
     name: str
     collection: str
     description: list[str]
+    variables: dict[str, Any]
     available_version: Version
     installed_version: Optional[Version] = None
-    configuration: dict[str, Any]
     selected: bool = False
 
     @classmethod
@@ -39,16 +39,16 @@ class Role:
 
         description = metadata.get('description', '')
         available = Version(metadata.get('version', '0.0.0'))
-        installed = (config.roles.get(collection) or {}).get(name)
-        configuration = metadata.get('config', {})
+        installed = (config.channels[collection]['roles'] or {}).get(name)
+        config_vars = metadata.get('config', {})
 
         return cls(
             name,
             collection,
             [line.strip() for line in description.splitlines()],
+            config_vars,
             available,
             Version(installed) if installed else None,
-            configuration
         )
 
     @property
@@ -108,4 +108,4 @@ def execute_roles(roles_to_run):
         # over
         #     roles:
         #       collection.name: {}
-        config.roles[collection] = {r.name: r.available_version for r in roles} or None
+        config.channels[collection]["roles"] = {r.name: r.available_version for r in roles} or None

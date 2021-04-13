@@ -32,8 +32,10 @@ def subscribe(url: str):
     result = galaxy["collection", "install", "--force", url].run()
     namespace, collection = result[1].splitlines()[-1].split()[0].split('.')
 
-    config.channels[f"{namespace}.{collection}"] = url
-    config.roles[f"{namespace}.{collection}"] = None
+    if f"{namespace}.{collection}" not in config.channels:
+        config.channels[f"{namespace}.{collection}"] = {'url': url, 'roles': None}
+    else:
+        config.channels[f"{namespace}.{collection}"]["url"] = url
 
 
 @app.command()
@@ -50,14 +52,15 @@ def configure():
         role
         for collection, roles in pqrs_roles.items()
         for role in roles
-        if role.name in (config.roles.get(collection) or [])
+        if (collection_cfg := config.channels.get(collection))
+        and role.name in (collection_cfg.get('roles') or {})
     ]
     for role in active_roles:
         role.selected = True
 
     # Ask user to (re)configure the roles
     for collection, roles in pqrs_roles.items():
-        config.roles[collection] = {
+        config.channels[collection]["roles"] = {
             r.name: r.installed_version
             for r in tui.select_roles(roles)
         } or None
@@ -72,8 +75,8 @@ def update():
     galaxy = local["ansible-galaxy"]
 
     # Fetch the newest updates from channels
-    for url in config.channels.values():
-        result = galaxy["collection", "install", "--force", url].run()
+    for channel in config.channels.values():
+        result = galaxy["collection", "install", "--force", channel["url"]].run()
 
     # Discover roles
     pqrs_roles = backend.discover_roles()
@@ -82,7 +85,9 @@ def update():
         collection: [
             r
             for r in roles
-            if r.name in (config.roles.get(collection) or {}) and r.is_outdated
+            if (collection_cfg := config.channels.get(collection))
+            and r.name in collection_cfg['roles']  # only install configured roles
+            and r.is_outdated
         ]
         for collection, roles in pqrs_roles.items()
     }
