@@ -80,7 +80,7 @@ def update():
 
     roles_to_run = {
         collection: [
-            r.name
+            r
             for r in roles
             if r.name in config.roles.get(collection, []) and r.is_outdated
         ]
@@ -100,7 +100,7 @@ def execute():
 
     # Ask user to (re)configure the roles
     roles_to_run = {
-        collection: [r.name for r in tui.select_roles(roles)]
+        collection: tui.select_roles(roles)
         for collection, roles in pqrs_roles.items()
     }
 

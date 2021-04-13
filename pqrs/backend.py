@@ -93,7 +93,7 @@ def execute_roles(roles_to_run):
             f.write('\n'.join([
                 '- hosts: localhost',
                 '  roles:',
-                *(f'    - {role}' for role in itertools.chain(*roles_to_run.values()))
+                *(f'    - {role.name}' for role in itertools.chain(*roles_to_run.values()))
             ]))
         args = ("--project-dir", str(tmpdir.path), "--play", "play.yml", "run", str(tmpdir.path))
         runner[(*role_path_args, *args)] & FG
