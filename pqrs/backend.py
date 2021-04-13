@@ -48,6 +48,7 @@ class Role:
             Version(installed) if installed else None
         )
 
+    @property
     def is_outdated(self):
         return self.installed_version is None or self.available_version > self.installed_version
 
