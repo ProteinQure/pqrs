@@ -5,7 +5,7 @@ Implements backend-related functionality.
 import dataclasses
 import itertools
 import json
-from typing import Optional
+from typing import Optional, Any
 
 import temppathlib
 import yaml
@@ -23,6 +23,7 @@ class Role:
     description: list[str]
     available_version: Version
     installed_version: Optional[Version] = None
+    configuration: dict[str, Any]
     selected: bool = False
 
     @classmethod
@@ -39,13 +40,15 @@ class Role:
         description = metadata.get('description', '')
         available = Version(metadata.get('version', '0.0.0'))
         installed = (config.roles.get(collection) or {}).get(name)
+        configuration = metadata.get('config', {})
 
         return cls(
             name,
             collection,
             [line.strip() for line in description.splitlines()],
             available,
-            Version(installed) if installed else None
+            Version(installed) if installed else None,
+            configuration
         )
 
     @property
