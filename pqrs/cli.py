@@ -58,7 +58,7 @@ def configure():
     # Ask user to (re)configure the roles
     for collection, roles in pqrs_roles.items():
         config.roles[collection] = {
-            r.name: str(r.installed_version) if r.installed_version is not None else None
+            r.name: r.installed_version
             for r in tui.select_roles(roles)
         }
 
