@@ -38,7 +38,7 @@ class Role:
 
         description = metadata.get('description', '')
         available = Version(metadata.get('version', '0.0.0'))
-        installed = config.roles.get(collection, {}).get(name)
+        installed = (config.roles.get(collection) or {}).get(name)
 
         return cls(
             name,

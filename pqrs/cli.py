@@ -82,7 +82,7 @@ def update():
         collection: [
             r
             for r in roles
-            if r.name in config.roles.get(collection, []) and r.is_outdated
+            if r.name in (config.roles.get(collection) or {}) and r.is_outdated
         ]
         for collection, roles in pqrs_roles.items()
     }
