@@ -60,7 +60,7 @@ def configure():
         config.roles[collection] = {
             r.name: r.installed_version
             for r in tui.select_roles(roles)
-        }
+        } or None
 
 
 @app.command()

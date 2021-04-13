@@ -99,4 +99,10 @@ def execute_roles(roles_to_run):
         runner[(*role_path_args, *args)] & FG
 
     for collection, roles in roles_to_run.items():
-        config.roles[collection] = {r.name: r.available_version for r in roles}
+        # Store the executed roles. Prefer None over empty dict to ensure
+        #     roles:
+        #       collection.name:
+        # over
+        #     roles:
+        #       collection.name: {}
+        config.roles[collection] = {r.name: r.available_version for r in roles} or None
