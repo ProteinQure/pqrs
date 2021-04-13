@@ -21,7 +21,7 @@ class Role:
     name: str
     collection: str
     description: list[str]
-    current_version: Version
+    available_version: Version
     installed_version: Optional[Version] = None
     selected: bool = False
 
@@ -98,4 +98,4 @@ def execute_roles(roles_to_run):
         runner[(*role_path_args, *args)] & FG
 
     for collection, roles in roles_to_run.items():
-        config.roles[collection] = {r.name: r.current_version for r in roles}
+        config.roles[collection] = {r.name: r.available_version for r in roles}
