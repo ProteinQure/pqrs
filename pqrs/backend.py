@@ -23,6 +23,7 @@ class Role:
     description: list[str]
     current_version: Version
     installed_version: Optional[Version] = None
+    selected: bool = False
 
     @classmethod
     def from_path(cls, path, collection):
