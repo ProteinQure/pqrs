@@ -60,10 +60,26 @@ def configure():
 
     # Ask user to (re)configure the roles
     for collection, roles in pqrs_roles.items():
+        selected_roles, provided_vars = tui.select_roles(roles)
+
+        # Update the selected roles
         config.channels[collection]["roles"] = {
             r.name: r.installed_version
-            for r in tui.select_roles(roles)
+            for r in selected_roles
         } or None
+
+        # Update the configuration
+        if config.variables is None:
+            config.variables = {}
+
+        for var, value in provided_vars.items():
+            if '.' in var:
+                group, var_name = var.split('.')
+                if group not in config.variables:
+                    config.variables[group] = {}
+                config.variables[group][var_name] = value
+            else:
+                config.variables[var] = value
 
 
 @app.command()
@@ -105,7 +121,7 @@ def execute():
 
     # Ask user to (re)configure the roles
     roles_to_run = {
-        collection: tui.select_roles(roles)
+        collection: tui.select_roles(roles)[0]
         for collection, roles in pqrs_roles.items()
     }
 
