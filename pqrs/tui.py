@@ -122,7 +122,9 @@ def select_roles(data):
     app = RoleSelector(data)
     app.run()
 
+    variables = app._Forms["config"].values
+
     return [
         role for role, checkbox in zip(data, app._Forms["MAIN"].checkboxes)
         if checkbox.value is True
-    ]
+    ], variables
