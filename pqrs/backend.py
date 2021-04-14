@@ -7,6 +7,7 @@ import itertools
 import json
 from typing import Optional, Any
 
+import datafiles.formats
 import temppathlib
 import yaml
 from plumbum import local, FG, BG
@@ -92,12 +93,25 @@ def execute_roles(roles_to_run):
     runner = local["ansible-runner"]
 
     with temppathlib.TemporaryDirectory() as tmpdir:
+        # Dump the configuration values into a temp file
+        with open(tmpdir.path / "vars.yml", "w") as f:
+            # We need to use datafiles serializer directly to turn just one
+            # attribute of the class into yaml
+            content = datafiles.formats.RuamelYAML.serialize(config.variables)
+            f.write(content)
+
+        # Execute the playbook
         with open(tmpdir.path / "play.yml", "w") as f:
-            f.write('\n'.join([
+            lines = ([
                 '- hosts: localhost',
                 '  roles:',
                 *(f'    - {role.name}' for role in itertools.chain(*roles_to_run.values()))
-            ]))
+            ] + [
+                '  vars_files:',
+                f'    - {str(tmpdir.path / "vars.yml")}'
+            ])
+            f.write('\n'.join(lines))
+
         args = ("--project-dir", str(tmpdir.path), "--play", "play.yml", "run", str(tmpdir.path))
         runner[(*role_path_args, *args)] & FG
 
