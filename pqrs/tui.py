@@ -77,7 +77,7 @@ class ReviewConfigurationForm(npyscreen.Form):
         Add a single element to the form.
         """
 
-        element = self.add(npyscreen.TitleText, name=name, value=value)
+        element = self.add(npyscreen.TitleText, name=name, value=value, use_two_lines=False)
         self.elements[name] = element
 
     def create(self):
