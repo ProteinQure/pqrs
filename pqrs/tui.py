@@ -81,7 +81,11 @@ class ReviewConfigurationForm(npyscreen.Form):
         self.elements[name] = element
 
     def create(self):
-        for role in self.data:
+        for index, role in enumerate(self.data):
+            # Determine if the checkbox was selected, continue if not
+            if not self.parentApp._Forms["MAIN"].checkboxes[index].value:
+                continue
+
             variables = role.variables
             for variable, default in variables.items():
                 if isinstance(default, dict):
