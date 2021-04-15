@@ -104,7 +104,7 @@ def execute_roles(roles_to_run):
         playbook = [{
             'hosts': 'localhost',
             'roles': [
-                {'role': role.name, 'vars': {'role_version': role.installed_version}}
+                {'role': role.name, 'vars': {'role_version': role.installed_version or '0.0.0'}}
                 for role in itertools.chain(*roles_to_run.values())
             ],
             'vars_files': str(tmpdir.path / "vars.yml")
