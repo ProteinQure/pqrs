@@ -1,5 +1,7 @@
 import npyscreen
 
+from pqrs.config import config
+
 
 class DescribedCheckBox(npyscreen.CheckBox):
     """
@@ -81,7 +83,9 @@ class ReviewConfigurationForm(npyscreen.Form):
         if name in self.elements:
             return
 
-        element = self.add(npyscreen.TitleText, name=name, value=value, use_two_lines=False)
+        element_value = config.get_variable(name) or value
+
+        element = self.add(npyscreen.TitleText, name=name, value=element_value, use_two_lines=False)
         self.elements[name] = element
 
     def create(self):
