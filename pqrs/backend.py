@@ -100,20 +100,25 @@ def execute_roles(roles_to_run):
             content = datafiles.formats.RuamelYAML.serialize(config.variables)
             f.write(content)
 
-        # Execute the playbook
-        with open(tmpdir.path / "play.yml", "w") as f:
-            lines = ([
-                '- hosts: localhost',
-                '  roles:',
-                *(f'    - {role.name}' for role in itertools.chain(*roles_to_run.values()))
-            ] + [
-                '  vars_files:',
-                f'    - {str(tmpdir.path / "vars.yml")}'
-            ])
-            f.write('\n'.join(lines))
+        # Prepare the playbook
+        playbook = [{
+            'hosts': 'localhost',
+            'roles': [
+                {'role': role.name, 'vars': {'role_version': role.installed_version}}
+                for role in itertools.chain(*roles_to_run.values())
+            ],
+            'vars_files': str(tmpdir.path / "vars.yml")
+        }]
 
+        with open(tmpdir.path / "play.yml", "w") as f:
+            content = datafiles.formats.RuamelYAML.serialize(playbook)
+            f.write(content)
+
+        # Execute the playbook, using private role vars switch to ensure
+        # role_version variables are not overwriting each other
         args = ("--project-dir", str(tmpdir.path), "--play", "play.yml", "run", str(tmpdir.path))
-        runner[(*role_path_args, *args)] & FG
+        with local.env(ANSIBLE_PRIVATE_ROLE_VARS="True"):
+            runner[(*role_path_args, *args)] & FG
 
     for collection, roles in roles_to_run.items():
         # Store the executed roles. Prefer None over empty dict to ensure
