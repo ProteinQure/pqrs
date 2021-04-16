@@ -5,6 +5,7 @@ Implements backend-related functionality.
 import dataclasses
 import itertools
 import json
+import pathlib
 from typing import Optional, Any
 
 import datafiles.formats
@@ -33,6 +34,7 @@ class Role:
 
     @classmethod
     def from_path(cls, path, collection):
+        # type: (pathlib.Path, str) -> Role
         """
         Construct a Role object from a given filesystem path. The information
         about the role is loaded from the meta/pqrs.yml file.
@@ -63,6 +65,7 @@ class Role:
 
     @property
     def is_outdated(self):
+        # type: () -> bool
         """
         Returns True if role should be run.
         """
@@ -71,6 +74,7 @@ class Role:
 
 
 def discover_roles():
+    # type: () -> dict[str, list[Role]]
     """
     Discovers PQRS-enabled roles on the filesystem.
     """
@@ -94,6 +98,7 @@ def discover_roles():
 
 
 def execute_roles(roles_to_run):
+    # type: (list[str]) -> None
     """
     Executes the given roles using ansible-runner.
     """

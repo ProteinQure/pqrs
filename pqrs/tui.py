@@ -132,6 +132,7 @@ class ReviewConfigurationForm(npyscreen.Form):
 
     @property
     def values(self):
+        # type: () -> dict[str, bool]
         """
         Return the values from the user-filled form.
         """
@@ -156,9 +157,11 @@ class RoleSelector(npyscreen.NPSAppManaged):
 
 
 def select_roles(data):
+    # type: (dict[str, list[Role]) -> tuple[list[Role], dict[str, str]]
     """
     Returns user-selected roles.
     """
+
     app = RoleSelector(data)
     app.run()
 
