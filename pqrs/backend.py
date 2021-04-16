@@ -19,6 +19,10 @@ from pqrs.version import Version
 
 @dataclasses.dataclass
 class Role:
+    """
+    A collection of metadata related to a single ansible role.
+    """
+
     name: str
     collection: str
     description: list[str]
@@ -29,6 +33,11 @@ class Role:
 
     @classmethod
     def from_path(cls, path, collection):
+        """
+        Construct a Role object from a given filesystem path. The information
+        about the role is loaded from the meta/pqrs.yml file.
+        """
+
         name = path.stem
 
         metadata = {}
@@ -54,6 +63,10 @@ class Role:
 
     @property
     def is_outdated(self):
+        """
+        Returns True if role should be run.
+        """
+
         return self.installed_version is None or self.available_version > self.installed_version
 
 

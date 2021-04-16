@@ -15,12 +15,21 @@ class DescribedCheckBox(npyscreen.CheckBox):
         super().__init__(*args, **kwargs)
 
     def on_focusin(self):
+        """
+        Switch the description widget content to the currently focused form
+        element's description.
+        """
+
         if not getattr(self.parent_form, 'description', None):
             return None
         self.parent_form.description.values = self.description_text
         self.parent_form.display()
 
     def on_focusout(self):
+        """
+        Clear the description widget content on focus out.
+        """
+
         if not getattr(self.parent_form, 'description', None):
             return None
         self.parent_form.description.values = []
@@ -37,9 +46,18 @@ class RoleSelectorForm(npyscreen.Form):
         super().__init__(*args, **kwargs)
 
     def afterEditing(self):
+        """
+        Sets the next form to displayed.
+        """
+
         self.parentApp.setNextForm('config')
 
     def create(self):
+        """
+        Constructs the form, displaying a checkbox for each role and a
+        description widget.
+        """
+
         for role in self.data:
             checkbox = self.add(
                 DescribedCheckBox,
@@ -72,6 +90,11 @@ class ReviewConfigurationForm(npyscreen.Form):
         super().__init__(*args, **kwargs)
 
     def afterEditing(self):
+        """
+        Sets the next form to displayed.
+        """
+
+        # This is the final form
         self.parentApp.setNextForm(None)
 
     def add_form_item(self, name, value, item_type):
@@ -89,6 +112,11 @@ class ReviewConfigurationForm(npyscreen.Form):
         self.elements[name] = element
 
     def create(self):
+        """
+        Construct the form by displaying TitleText input for each configuration
+        variable the selected roles require.
+        """
+
         for index, role in enumerate(self.data):
             # Determine if the checkbox was selected, continue if not
             if not self.parentApp._Forms["MAIN"].checkboxes[index].value:
