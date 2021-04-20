@@ -139,10 +139,9 @@ def execute_roles(roles_to_run):
             runner[(*role_path_args, *args)] & FG
 
     for collection, roles in roles_to_run.items():
-        # Store the executed roles. Prefer None over empty dict to ensure
-        #     roles:
-        #       collection.name:
-        # over
-        #     roles:
-        #       collection.name: {}
-        config.channels[collection]["roles"] = {r.name: r.available_version for r in roles} or None
+        for role in roles:
+            # Create role dict if it does not exist
+            if not config.channels[collection].get("roles"):
+                config.channels[collection]["roles"] = {}
+
+            config.channels[collection]["roles"][role.name] = role.available_version
