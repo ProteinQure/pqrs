@@ -50,6 +50,7 @@ class RoleSelectorForm(npyscreen.Form):
         Sets the next form to displayed.
         """
 
+        self.parentApp.addForm('config', ReviewConfigurationForm, name='Provide configuration', data=self.data)
         self.parentApp.setNextForm('config')
 
     def create(self):
@@ -153,7 +154,6 @@ class RoleSelector(npyscreen.NPSAppManaged):
     def onStart(self):
         npyscreen.setTheme(npyscreen.Themes.ColorfulTheme)
         self.addForm('MAIN', RoleSelectorForm, name='Select roles', data=self.data)
-        self.addForm('config', ReviewConfigurationForm, name='Provide configuration', data=self.data)
 
 
 def select_roles(data):
