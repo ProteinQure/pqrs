@@ -102,7 +102,7 @@ def update():
             r
             for r in roles
             if (collection_cfg := config.channels.get(collection))
-            and r.name in collection_cfg['roles']  # only install configured roles
+            and r.name in (collection_cfg['roles'] or {})  # only install configured roles
             and r.is_outdated
         ]
         for collection, roles in pqrs_roles.items()
