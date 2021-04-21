@@ -62,6 +62,16 @@ class RoleSelectorForm(npyscreen.Form):
         """
 
         for collection, roles in self.data.items():
+            # Create channel header
+            self.add(
+                npyscreen.TitleFixedText,
+                name=f"Channel: {collection}",
+                value="",
+                max_width=40,
+                editable=False
+            )
+
+            # Create a checkbox for each role in the channel
             for role in roles:
                 checkbox = self.add(
                     DescribedCheckBox,
@@ -72,6 +82,8 @@ class RoleSelectorForm(npyscreen.Form):
                     description_text=role.description
                 )
                 self.checkboxes[collection].append(checkbox)
+
+            self.nextrely += 1  # padding
 
         self.description = self.add(
             npyscreen.BoxTitle,
