@@ -1,3 +1,5 @@
+import collections
+
 import npyscreen
 
 from pqrs.config import config
@@ -42,7 +44,7 @@ class RoleSelectorForm(npyscreen.Form):
 
     def __init__(self, *args, **kwargs):
         self.data = kwargs.pop('data')
-        self.checkboxes = []
+        self.checkboxes = collections.defaultdict(list)
         super().__init__(*args, **kwargs)
 
     def afterEditing(self):
@@ -59,16 +61,17 @@ class RoleSelectorForm(npyscreen.Form):
         description widget.
         """
 
-        for role in self.data:
-            checkbox = self.add(
-                DescribedCheckBox,
-                name=role.name,
-                value=role.selected,
-                max_width=40,
-                parent_form=self,
-                description_text=role.description
-            )
-            self.checkboxes.append(checkbox)
+        for collection, roles in self.data.items():
+            for role in roles:
+                checkbox = self.add(
+                    DescribedCheckBox,
+                    name=role.name,
+                    value=role.selected,
+                    max_width=40,
+                    parent_form=self,
+                    description_text=role.description
+                )
+                self.checkboxes[collection].append(checkbox)
 
         self.description = self.add(
             npyscreen.BoxTitle,
@@ -118,18 +121,19 @@ class ReviewConfigurationForm(npyscreen.Form):
         variable the selected roles require.
         """
 
-        for index, role in enumerate(self.data):
-            # Determine if the checkbox was selected, continue if not
-            if not self.parentApp._Forms["MAIN"].checkboxes[index].value:
-                continue
+        for collection, roles in self.data.items():
+            for index, role in enumerate(roles):
+                # Determine if the checkbox was selected, continue if not
+                if not self.parentApp._Forms["MAIN"].checkboxes[collection][index].value:
+                    continue
 
-            variables = role.variables
-            for variable, default in variables.items():
-                if isinstance(default, dict):
-                    for subvariable, subdefault in default.items():
-                        self.add_form_item(f"{variable}.{subvariable}", subdefault, 'textfield')
-                else:
-                    self.add_form_item(variable, default, 'textfield')
+                variables = role.variables
+                for variable, default in variables.items():
+                    if isinstance(default, dict):
+                        for subvariable, subdefault in default.items():
+                            self.add_form_item(f"{variable}.{subvariable}", subdefault, 'textfield')
+                    else:
+                        self.add_form_item(variable, default, 'textfield')
 
     @property
     def values(self):
@@ -167,7 +171,12 @@ def select_roles(data):
 
     variables = app._Forms["config"].values
 
-    return [
-        role for role, checkbox in zip(data, app._Forms["MAIN"].checkboxes)
-        if checkbox.value is True
-    ], variables
+    selected_roles = {
+        collection: [
+            role for role, checkbox in zip(roles, app._Forms["MAIN"].checkboxes[collection])
+            if checkbox.value is True
+        ]
+        for collection, roles in data.items()
+    }
+
+    return selected_roles, variables

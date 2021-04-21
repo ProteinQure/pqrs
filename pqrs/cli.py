@@ -59,13 +59,13 @@ def configure():
         role.selected = True
 
     # Ask user to (re)configure the roles
-    for collection, roles in pqrs_roles.items():
-        selected_roles, provided_vars = tui.select_roles(roles)
+    selected_roles, provided_vars = tui.select_roles(pqrs_roles)
 
+    for collection, roles in pqrs_roles.items():
         # Update the selected roles
         config.channels[collection]["roles"] = {
             r.name: r.installed_version
-            for r in selected_roles
+            for r in selected_roles[collection]
         } or None
 
         # Update the configuration
