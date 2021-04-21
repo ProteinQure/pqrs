@@ -107,7 +107,6 @@ def execute_roles(roles_to_run):
         str(paths.COLLECTIONS / f"{collection.replace('.', '/')}/roles")
         for collection in roles_to_run
     ]
-    role_path_args = itertools.chain(*[("--roles-path", p) for p in role_paths])
     runner = local["ansible-runner"]
 
     with temppathlib.TemporaryDirectory() as tmpdir:
@@ -134,9 +133,14 @@ def execute_roles(roles_to_run):
 
         # Execute the playbook, using private role vars switch to ensure
         # role_version variables are not overwriting each other
-        args = ("--project-dir", str(tmpdir.path), "--play", "play.yml", "run", str(tmpdir.path))
         with local.env(ANSIBLE_PRIVATE_ROLE_VARS="True"):
-            runner[(*role_path_args, *args)] & FG
+            args = (
+                "--roles-path", ":".join(role_paths),
+                "--project-dir", str(tmpdir.path),
+                "--play", "play.yml",
+                "run", str(tmpdir.path)
+            )
+            runner[args] & FG
 
     for collection, roles in roles_to_run.items():
         for role in roles:
