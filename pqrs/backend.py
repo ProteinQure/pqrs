@@ -114,7 +114,7 @@ def execute_roles(roles_to_run):
         with open(tmpdir.path / "vars.yml", "w") as f:
             # We need to use datafiles serializer directly to turn just one
             # attribute of the class into yaml
-            content = datafiles.formats.RuamelYAML.serialize(config.variables)
+            content = datafiles.formats.YAML.serialize(config.variables)
             f.write(content)
 
         # Prepare the playbook
@@ -128,7 +128,7 @@ def execute_roles(roles_to_run):
         }]
 
         with open(tmpdir.path / "play.yml", "w") as f:
-            content = datafiles.formats.RuamelYAML.serialize(playbook)
+            content = datafiles.formats.YAML.serialize(playbook)
             f.write(content)
 
         # Execute the playbook, using private role vars switch to ensure
